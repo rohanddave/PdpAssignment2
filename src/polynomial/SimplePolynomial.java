@@ -1,7 +1,6 @@
 package polynomial;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -19,47 +18,62 @@ public class SimplePolynomial implements Polynomial {
    */
   public SimplePolynomial() {
     this.polynomial = new HashMap<>();
-    this.polynomial.put(0, 0);
     this.degree = 0;
-    this.variable = "x";
-  }
-
-  /**
-   * Constructs a new instance of SimplePolynomial using the given hashmap.
-   *
-   * @param p hashmap where key is power and value is it's coefficient.
-   */
-  private SimplePolynomial(HashMap<Integer, Integer> p) {
-    this.polynomial = p;
     this.variable = "x";
   }
 
   @Override
   public Polynomial add(Polynomial other) {
-    HashMap<Integer, Integer> newPolynomial = new HashMap<>();
+    Polynomial sum = new SimplePolynomial();
 
-    int otherPolynomialDegree = other.getDegree();
-    for (int i = otherPolynomialDegree; i >= 0; i--) {
-      int otherPolynomialCoefficientForPower = other.getCoefficient(i);
-      newPolynomial.put(i, otherPolynomialCoefficientForPower + this.getCoefficient(i));
+    for (Map.Entry<Integer, Integer> entrySet : this.polynomial.entrySet()) {
+      int power = entrySet.getKey();
+      int coefficient = entrySet.getValue();
+
+      sum.addTerm(coefficient, power);
     }
 
-    return new SimplePolynomial(newPolynomial);
+
+    int otherPolynomialDegree = other.getDegree();
+
+    for (int power = otherPolynomialDegree; power >= 0; power--) {
+      int otherPolynomialCoefficientForPower = other.getCoefficient(power);
+      sum.addTerm(otherPolynomialCoefficientForPower, power);
+    }
+
+    return sum;
   }
 
   @Override
   public Polynomial multiply(Polynomial other) {
-    return null;
+    Polynomial product = new SimplePolynomial();
+
+    for (int otherPower = other.getDegree(); otherPower >= 0; otherPower--) {
+      int otherCoefficient = other.getCoefficient(otherPower);
+
+      if (otherCoefficient == 0) {
+        continue;
+      }
+
+      for (Map.Entry<Integer, Integer> entry : this.polynomial.entrySet()) {
+        int power = entry.getKey();
+        int coefficient = entry.getValue();
+
+        int newPower = otherPower + power;
+        int newCoefficient = otherCoefficient * coefficient;
+
+        product.addTerm(newCoefficient, newPower);
+      }
+    }
+
+    return product;
   }
 
   @Override
   public Polynomial derivative() {
-    HashMap<Integer, Integer> newPolynomial = new HashMap<>();
+    Polynomial derivative = new SimplePolynomial();
 
-    Iterator<Map.Entry<Integer, Integer>> iterator = this.polynomial.entrySet().iterator();
-
-    while (iterator.hasNext()) {
-      Map.Entry<Integer, Integer> entry = iterator.next();
+    for (Map.Entry<Integer, Integer> entry : this.polynomial.entrySet()) {
       int power = entry.getKey();
       int coefficient = entry.getValue();
 
@@ -67,10 +81,10 @@ public class SimplePolynomial implements Polynomial {
         continue;
       }
 
-      newPolynomial.put(power - 1, coefficient * power);
+      derivative.addTerm(coefficient * power, power - 1);
     }
 
-    return new SimplePolynomial(newPolynomial);
+    return derivative;
   }
 
   @Override
@@ -84,7 +98,16 @@ public class SimplePolynomial implements Polynomial {
     }
 
     int finalCoefficient = this.polynomial.getOrDefault(power, 0) + coefficient;
-    this.polynomial.put(power, finalCoefficient);
+    if (finalCoefficient == 0) {
+      this.polynomial.remove(power);
+      if (power == this.degree) {
+        this.degree = this.polynomial.keySet().stream().max(Integer::compare).orElse(0);
+      }
+    } else {
+      this.polynomial.put(power, finalCoefficient);
+    }
+
+    this.degree = Math.max(this.degree, power);
   }
 
   @Override
@@ -96,10 +119,7 @@ public class SimplePolynomial implements Polynomial {
   public double evaluate(double x) {
     double sum = 0.0;
 
-    Iterator<Map.Entry<Integer, Integer>> iterator = polynomial.entrySet().iterator();
-
-    while (iterator.hasNext()) {
-      Map.Entry<Integer, Integer> entry = iterator.next();
+    for (Map.Entry<Integer, Integer> entry : polynomial.entrySet()) {
       int power = entry.getKey();
       int coefficient = entry.getValue();
       sum += coefficient * Math.pow(x, power);
@@ -141,21 +161,35 @@ public class SimplePolynomial implements Polynomial {
    * @return String representation of polynomial.
    */
   public String toString() {
+    if (this.getDegree() == 0 && this.polynomial.getOrDefault(0, 0) == 0) {
+      return "0";
+    }
+
     StringBuilder sb = new StringBuilder();
 
-    Iterator<Map.Entry<Integer, Integer>> iterator = polynomial.entrySet().iterator();
+    for (int power = this.getDegree(); power >= 0; power--) {
+      int coefficient = this.polynomial.getOrDefault(power, 0);
 
-    while (iterator.hasNext()) {
-      Map.Entry<Integer, Integer> entry = iterator.next();
-      int power = entry.getKey();
-      int coefficient = entry.getValue();
+      if (coefficient == 0) {
+        continue;
+      }
 
       StringBuilder termStringBuilder = new StringBuilder();
-      if (coefficient < 0) {
-        termStringBuilder.append("-");
-      } else if (!sb.isEmpty()) {
-        termStringBuilder.append("+");
+
+      String sign = coefficient < 0 ? "-" : "+";
+
+      if (!sb.isEmpty()) {
+        // not the first term
+        termStringBuilder
+                .append(" ")
+                .append(sign)
+                .append(" ");
+      } else if (coefficient < 0) {
+        // negative first term
+        termStringBuilder.append(sign);
       }
+
+      termStringBuilder.append(Integer.toString(Math.abs(coefficient)));
 
       if (power != 0) {
         termStringBuilder
