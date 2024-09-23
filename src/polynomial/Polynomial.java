@@ -67,7 +67,6 @@ public interface Polynomial {
    * <li>If the polynomial starts with a term with a positive coefficient,
    * it does not have + in front of it.</li>
    * <li>An empty polynomial returns the string "0"</li>
-   * </li>
    * </ol>
    *
    * @return a string formatted according to the above specifications
