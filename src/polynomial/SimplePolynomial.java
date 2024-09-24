@@ -1,14 +1,14 @@
 package polynomial;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * A class that represents a SimplePolynomial.
  */
 public class SimplePolynomial implements Polynomial {
-  private final HashMap<Integer, Integer> polynomial;
+  private final List<PolynomialTerm> polynomial;
   private int degree;
   private final String variable;
 
@@ -17,7 +17,7 @@ public class SimplePolynomial implements Polynomial {
    * Initializes polynomial = 0.
    */
   public SimplePolynomial() {
-    this.polynomial = new HashMap<>();
+    this.polynomial = new ArrayList<>();
     this.degree = 0;
     this.variable = "x";
   }
@@ -26,9 +26,9 @@ public class SimplePolynomial implements Polynomial {
   public Polynomial add(Polynomial other) {
     Polynomial sum = new SimplePolynomial();
 
-    for (Map.Entry<Integer, Integer> entrySet : this.polynomial.entrySet()) {
-      int power = entrySet.getKey();
-      int coefficient = entrySet.getValue();
+    for (PolynomialTerm term : this.polynomial) {
+      int power = term.getPower();
+      int coefficient = term.getCoefficient();
 
       sum.addTerm(coefficient, power);
     }
@@ -55,9 +55,9 @@ public class SimplePolynomial implements Polynomial {
         continue;
       }
 
-      for (Map.Entry<Integer, Integer> entry : this.polynomial.entrySet()) {
-        int power = entry.getKey();
-        int coefficient = entry.getValue();
+      for (PolynomialTerm term : this.polynomial) {
+        int power = term.getPower();
+        int coefficient = term.getCoefficient();
 
         int newPower = otherPower + power;
         int newCoefficient = otherCoefficient * coefficient;
@@ -73,9 +73,9 @@ public class SimplePolynomial implements Polynomial {
   public Polynomial derivative() {
     Polynomial derivative = new SimplePolynomial();
 
-    for (Map.Entry<Integer, Integer> entry : this.polynomial.entrySet()) {
-      int power = entry.getKey();
-      int coefficient = entry.getValue();
+    for (PolynomialTerm term : this.polynomial) {
+      int power = term.getPower();
+      int coefficient = term.getCoefficient();
 
       if (power == 0) {
         continue;
@@ -97,17 +97,21 @@ public class SimplePolynomial implements Polynomial {
       return;
     }
 
-    int finalCoefficient = this.polynomial.getOrDefault(power, 0) + coefficient;
-    if (finalCoefficient == 0) {
-      this.polynomial.remove(power);
-      if (power == this.degree) {
-        this.degree = this.polynomial.keySet().stream().max(Integer::compare).orElse(0);
-      }
-    } else {
-      this.polynomial.put(power, finalCoefficient);
+    // Remove any existing term with the same power
+    PolynomialTerm existingTerm = getTermForPower(power);
+    this.polynomial.remove(existingTerm);
+
+    int finalCoefficient = existingTerm.getCoefficient() + coefficient;
+
+    if (finalCoefficient != 0) {
+      this.polynomial.add(new PolynomialTerm(finalCoefficient, power));
     }
 
-    this.degree = Math.max(this.degree, power);
+    if (power > this.degree) {
+      this.degree = power;
+    } else if (finalCoefficient == 0 && power == this.degree) {
+      computeDegree();  // Recompute the degree if the current highest degree was removed
+    }
   }
 
   @Override
@@ -119,9 +123,9 @@ public class SimplePolynomial implements Polynomial {
   public double evaluate(double x) {
     double sum = 0.0;
 
-    for (Map.Entry<Integer, Integer> entry : polynomial.entrySet()) {
-      int power = entry.getKey();
-      int coefficient = entry.getValue();
+    for (PolynomialTerm term : this.polynomial) {
+      int power = term.getPower();
+      int coefficient = term.getCoefficient();
       sum += coefficient * Math.pow(x, power);
     }
 
@@ -130,7 +134,13 @@ public class SimplePolynomial implements Polynomial {
 
   @Override
   public int getCoefficient(int power) {
-    return this.polynomial.getOrDefault(power, 0);
+    for (PolynomialTerm term : this.polynomial) {
+      if (term.getPower() == power) {
+        return term.getCoefficient();
+      }
+    }
+
+    return 0;
   }
 
   /**
@@ -166,14 +176,14 @@ public class SimplePolynomial implements Polynomial {
    * @return String representation of polynomial.
    */
   public String toString() {
-    if (this.getDegree() == 0 && this.polynomial.getOrDefault(0, 0) == 0) {
+    if (this.getDegree() == 0 && this.getCoefficient(0) == 0) {
       return "0";
     }
 
     StringBuilder sb = new StringBuilder();
 
     for (int power = this.getDegree(); power >= 0; power--) {
-      int coefficient = this.polynomial.getOrDefault(power, 0);
+      int coefficient = this.getCoefficient(power);
 
       if (coefficient == 0) {
         continue;
@@ -183,7 +193,7 @@ public class SimplePolynomial implements Polynomial {
 
       String sign = coefficient < 0 ? "-" : "+";
 
-      if (!sb.isEmpty()) {
+      if (sb.length() != 0) {
         // not the first term
         termStringBuilder
                 .append(" ")
@@ -207,5 +217,24 @@ public class SimplePolynomial implements Polynomial {
     }
 
     return sb.toString();
+  }
+
+  private PolynomialTerm getTermForPower(int power) {
+    for (PolynomialTerm term : this.polynomial) {
+      if (term.getPower() == power) {
+        return term;
+      }
+    }
+
+    return new PolynomialTerm(0, 0);
+  }
+
+  private void computeDegree() {
+    this.degree = 0;
+    for (PolynomialTerm term : this.polynomial) {
+      if(term.getPower() > this.degree) {
+        this.degree = term.getPower();
+      }
+    }
   }
 }
