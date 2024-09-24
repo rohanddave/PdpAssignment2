@@ -139,12 +139,12 @@ public class SimplePolynomial implements Polynomial {
    * @param other other object.
    * @return boolean representing if other object is equal to this polynomial.
    */
+  @Override
   public boolean equals(Object other) {
     if (other == null) {
       return false;
     }
 
-    // TODO: instanceof Polynomial or SimplePolynomial
     if (!(other instanceof SimplePolynomial)) {
       return false;
     }
@@ -152,6 +152,11 @@ public class SimplePolynomial implements Polynomial {
     Polynomial p = (SimplePolynomial) other;
 
     return Objects.equals(p.toString(), this.toString());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.polynomial);
   }
 
   /**
@@ -189,16 +194,16 @@ public class SimplePolynomial implements Polynomial {
         termStringBuilder.append(sign);
       }
 
-      termStringBuilder.append(Integer.toString(Math.abs(coefficient)));
+      termStringBuilder.append(Math.abs(coefficient));
 
       if (power != 0) {
         termStringBuilder
                 .append(this.variable)
                 .append("^")
-                .append(Integer.toString(power));
+                .append(power);
       }
 
-      sb.append(termStringBuilder.toString());
+      sb.append(termStringBuilder);
     }
 
     return sb.toString();

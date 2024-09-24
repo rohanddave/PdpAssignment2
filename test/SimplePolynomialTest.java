@@ -292,13 +292,15 @@ public class SimplePolynomialTest {
     a.addTerm(-2, 0);
 
     Polynomial b = new SimplePolynomial();
-//    b.addTerm();
+    b.addTerm(4, 2);
+    b.addTerm(4, 1);
+    b.addTerm(0, 0);
 
     // act
     Polynomial product = a.multiply(b);
 
     // arrange
-//    assertEquals();
+    assertEquals("20x^4 + 36x^3 + 8x^2 - 8x^1", product.toString());
   }
 
   @Test
