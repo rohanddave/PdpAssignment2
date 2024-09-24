@@ -9,8 +9,8 @@ public class PolynomialTerm {
 
   /**
    * Constructs a new instance of a polynomial term.
-   * @param coefficient
-   * @param power
+   * @param coefficient coefficient of the term.
+   * @param power power of the term.
    */
   PolynomialTerm(int coefficient, int power) {
     this.coefficient = coefficient;

@@ -232,7 +232,7 @@ public class SimplePolynomial implements Polynomial {
   private void computeDegree() {
     this.degree = 0;
     for (PolynomialTerm term : this.polynomial) {
-      if(term.getPower() > this.degree) {
+      if (term.getPower() > this.degree) {
         this.degree = term.getPower();
       }
     }
