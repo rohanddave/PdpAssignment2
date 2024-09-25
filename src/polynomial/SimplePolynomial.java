@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A class that represents a SimplePolynomial.
+ * A class that represents a SimplePolynomial where each term
+ * has a power and a coefficient
+ * Example: -2x^2 + 3x^1 - 9
  */
 public class SimplePolynomial implements Polynomial {
   private final List<PolynomialTerm> polynomial;
@@ -110,7 +112,7 @@ public class SimplePolynomial implements Polynomial {
     if (power > this.degree) {
       this.degree = power;
     } else if (finalCoefficient == 0 && power == this.degree) {
-      computeDegree();  // Recompute the degree if the current highest degree was removed
+      computeDegree();
     }
   }
 
@@ -166,7 +168,7 @@ public class SimplePolynomial implements Polynomial {
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.polynomial);
+    return Objects.hash(this.polynomial.toString());
   }
 
   /**
