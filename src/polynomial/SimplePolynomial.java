@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A class that represents a SimplePolynomial where each term
- * has a power and a coefficient
+ * A class that represents a SimplePolynomial where each term has a power and a coefficient.
+ * Provides functions to add, multiply, derivative, etc.
  * Example: -2x^2 + 3x^1 - 9
  */
 public class SimplePolynomial implements Polynomial {

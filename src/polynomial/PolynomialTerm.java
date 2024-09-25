@@ -3,7 +3,8 @@ package polynomial;
 import java.util.Objects;
 
 /**
- * A class that represents a term of a polynomial.
+ * A class that represents a term of a polynomial where each term has a coefficient and power.
+ * Example: 3x^3
  */
 public class PolynomialTerm {
   private int coefficient;
