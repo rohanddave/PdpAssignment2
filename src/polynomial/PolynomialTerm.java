@@ -1,5 +1,7 @@
 package polynomial;
 
+import java.util.Objects;
+
 /**
  * A class that represents a term of a polynomial.
  */
@@ -31,5 +33,28 @@ public class PolynomialTerm {
    */
   public int getPower() {
     return this.power;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.coefficient, this.power);
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other == null) {
+      return false;
+    }
+
+    if (!(other instanceof PolynomialTerm)) {
+      return false;
+    }
+
+    PolynomialTerm term = (PolynomialTerm) other;
+
+    boolean isPowerEqual = Objects.equals(term.getPower(), this.getPower());
+    boolean isCoefficientEqual = Objects.equals(term.getCoefficient(), this.getCoefficient());
+
+    return isPowerEqual && isCoefficientEqual;
   }
 }

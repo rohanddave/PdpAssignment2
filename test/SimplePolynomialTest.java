@@ -4,6 +4,7 @@ import polynomial.Polynomial;
 import polynomial.SimplePolynomial;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * A JUnit4 class that tests implementation of SimplePolynomial class.
@@ -367,5 +368,29 @@ public class SimplePolynomialTest {
 
     // assert
     assertEquals("12x^5 + 23x^3 + 5x^1", product.toString());
+  }
+
+
+  @Test
+  public void testPolynomialEquality() {
+    // arrange
+    Polynomial p1 = new SimplePolynomial();
+    p1.addTerm(3, 2);
+    p1.addTerm(5, 1);
+    p1.addTerm(-2, 0);
+
+    Polynomial p2 = new SimplePolynomial();
+    p2.addTerm(3, 2);
+    p2.addTerm(5, 1);
+    p2.addTerm(-2, 0);
+
+    Polynomial p3 = new SimplePolynomial();
+    p3.addTerm(3, 2);
+    p3.addTerm(5, 1);
+    p3.addTerm(-1, 0);
+
+    // assert
+    assertEquals("Polynomials should be equal", p1, p2);
+    assertNotEquals("Polynomials should not be equal", p1, p3);
   }
 }
